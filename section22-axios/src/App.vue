@@ -11,6 +11,10 @@
     name: 'app',
     components: {
       'app-header': Header
+    },
+    created(){
+      console.log('created');
+      this.$store.dispatch('tryAutoLogin');
     }
   }
 </script>

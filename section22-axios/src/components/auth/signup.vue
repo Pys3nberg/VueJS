@@ -2,12 +2,16 @@
   <div id="signup">
     <div class="signup-form">
       <form @submit.prevent="onSubmit">
-        <div class="input">
+        <div class="input" :class="{invalid: $v.email.$error}">
           <label for="email">Mail</label>
           <input
                   type="email"
                   id="email"
-                  v-model="email">
+                  v-model="email"
+                  @input="$v.email.$touch()">
+          <p v-if="!$v.email.email">Please provide a valid email address</p>
+          <p v-if="!$v.email.required">Field must not be empty</p>
+
         </div>
         <div class="input">
           <label for="age">Your Age</label>
@@ -69,8 +73,7 @@
 </template>
 
 <script>
-  import axios from '../../axios-auth';
-
+  import { required, email } from 'vuelidate/lib/validators'
   export default {
     data () {
       return {
@@ -81,6 +84,13 @@
         country: 'usa',
         hobbyInputs: [],
         terms: false
+      }
+    },
+    validations:{
+      //bind to the data props that are v-bind to the control
+      email: {
+        required: required,
+        email:email
       }
     },
     methods: {
@@ -105,17 +115,7 @@
           terms: this.terms
         }
         console.log(formData);
-        axios.post('/accounts:signUp?key=AIzaSyCJxbX9WxkzH3TMEt_ba6xSENAXtE8sl1w', {
-          email: formData.email,
-          password: formData.password,
-          returnSecureToken: true
-        })
-                .then(response => {
-                  console.log(response);
-                })
-                .catch(error => {
-                  console.log(error);
-                });
+        this.$store.dispatch('signUp', formData);
       }
     }
   }
@@ -165,6 +165,15 @@
   .input select {
     border: 1px solid #ccc;
     font: inherit;
+  }
+
+  .input.invalid label {
+    color: red;
+  }
+
+  .input.invalid input {
+    border: 1px solid red;
+    background-color: #ff8980;
   }
 
   .hobbies button {
